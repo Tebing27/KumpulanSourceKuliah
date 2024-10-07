@@ -21,10 +21,10 @@ int main() {
         if (nl >= 85 && nl <= 100) {
             kategori = 'A';
             kategoriCount[0]++;
-        } else if (nl >= 70 && nl <= 84) {
+        } else if (nl >= 70 && nl <= 79) {
             kategori = 'B';
             kategoriCount[1]++;
-        } else if (nl >= 41 && nl <= 69) {
+        } else if (nl >= 41 && nl <= 55) {
             kategori = 'C';
             kategoriCount[2]++;
         } else if (nl >= 30 && nl <= 40) {

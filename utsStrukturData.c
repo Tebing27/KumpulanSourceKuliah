@@ -1,119 +1,199 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
+//definisi ukuran
+#define MAX 100
+#define Garis 60
 
-typedef struct Mahasiswa {
-    char nim[100];
-    char nama[100];
-    char matakuliah[100];
-    float nilai;
-    struct Mahasiswa* next;
-} Mahasiswa;
-
+//bikin garis panjang
+void panjangGaris(int panjang) {
+    int i = 0;
+    while(i < panjang) {
+        printf("=");
+        i++;
+    }
+    printf("\n");
+    return 0;
+}
+//menyimpan data
 typedef struct {
-    Mahasiswa* top;
+    char nim[5];
+    char nama[50];
+    char noTelp[15];
+    int uangSaku;
+} Data;
+//bikin stack array
+typedef struct {
+    Data data[MAX];
+    int top;
 } Stack;
-
-void initStack(Stack* s) {
-    (*s).top = NULL;
+//menginisialisasi stack
+void initStack(Stack *s) {
+    (*s).top = -1;
 }
-
-int isEmpty(Stack s) {
-    return s.top == NULL;
+//periksa stack penuh
+int isFullStack(Stack *s) {
+    return (*s).top == MAX - 1;
 }
-
-void push(Stack* s, char* nim, char* nama, char* matakuliah, float nilai) {
-    Mahasiswa* newNode = (Mahasiswa*)malloc(sizeof(Mahasiswa));
-
-    strncpy((*newNode).nim, nim, 100 - 1);
-    strncpy((*newNode).nama, nama, 100 - 1);
-    strncpy((*newNode).matakuliah, matakuliah, 100 - 1);
-    (*newNode).nilai = nilai;
-
-    (*newNode).next = (*s).top;
-    (*s).top = newNode;
-    printf("Data berhasil ditambahkan ke stack.\n");
+//periksa stack kosong
+int isEmptyStack(Stack *s) {
+    return (*s).top == -1;
 }
-
-void pop(Stack* s) {
-    if (isEmpty(*s)) {
-        printf("Stack kosong.\n");
-        return;
-    }
-    Mahasiswa* temp = (*s).top;
-    (*s).top = (*(*s).top).next;
-    free(temp);
-    printf("Data teratas berhasil dihapus dari stack.\n");
-}
-
-void display(Stack s) {
-    if (isEmpty(s)) {
-        printf("Stack kosong.\n");
-        return;
-    }
-    Mahasiswa* tampilan = s.top;
-    printf("Melihat stack:\n");
-    while (tampilan != NULL) {
-        printf("NIM: %s\nNama: %s\nMata Kuliah: %s\nNilai: %.2f\n",
-               (*tampilan).nim, (*tampilan).nama, (*tampilan).matakuliah, (*tampilan).nilai);
-        tampilan = (*tampilan).next;
+//periksa stack kosong atau tidak
+void push(Stack *s, Data value) {
+    if (isFullStack(s)) {
+        printf("Stack penuh\n");
+    } else {
+        (*s).top++;
+        (*s).data[(*s).top] = value;
     }
 }
-
-void clearStack(Stack* s) {
-    while (!isEmpty(*s)) {
-        pop(s);
+//mengeluarkan elemen dari stack
+Data pop(Stack *s) {
+    Data data = {"", "", "", 0};
+    if (isEmptyStack(s)) {
+        printf("Stack kosong\n");
+    } else {
+        data = (*s).data[(*s).top];
+        (*s).top--;
+    }
+    return data;
+}
+//menampilkan elemen dalam stack
+void displayStack(Stack *s) {
+    printf("Isi Stack:\n");
+    for (int i = (*s).top; i >= 0; i--) {
+        printf("%s %s %s %d\n", (*s).data[i].nim, (*s).data[i].nama, (*s).data[i].noTelp, (*s).data[i].uangSaku);
     }
 }
+//bikin queue menggunakan linked list
+typedef struct Node {
+    Data data;
+    struct Node* next;
+} Node;
+//queue pointer
+typedef struct {
+    Node* depan;
+    Node* belakang;
+} Queue;
+//menginisialisasi queue
+void initQueue(Queue* q) {
+    (*q).depan = (*q).belakang = NULL;
+}
+//periksa kosong atau tidak
+int isEmptyQueue(Queue* q) {
+    return ((*q).depan == NULL);
+}
+//menambahkan elemen ke dalam
+void enqueue(Queue* q, Data value) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->data = value;
+    newNode->next = NULL;
 
+    if (isEmptyQueue(q)) {
+        (*q).depan = (*q).belakang = newNode;
+    } else {
+        (*q).belakang->next = newNode;
+        (*q).belakang = newNode;
+    }
+}
+//mengeluarkan elemen
+Data dequeue(Queue* q) {
+    Data data = {"", "", "", 0};
+    if (isEmptyQueue(q)) {
+        printf("Queue kosong\n");
+    } else {
+        Node* temp = (*q).depan;
+        data = temp->data;
+        (*q).depan = (*q).depan->next;
+        free(temp);
+
+        if ((*q).depan == NULL) {
+            (*q).belakang = NULL;
+        }
+    }
+    return data;
+}
+//tampilkan elemen
+void displayQueue(Queue* q) {
+    printf("Isi Queue:\n");
+    Node* current = (*q).depan;
+    while (current != NULL) {
+        printf("%s %s %s %d\n", (*current).data.nim, (*current).data.nama, (*current).data.noTelp, (*current).data.uangSaku);
+        current = (*current).next;
+    }
+}
+//program utama
 int main() {
     Stack s;
     initStack(&s);
-    int pilihan;
-    char nim[100], nama[100], matakuliah[100];
-    float nilai;
+    //isi data
+    Data d1 = {"0001", "Sandi", "0895555666", 50000};
+    Data d2 = {"0002", "Iwan", "0879222727", 51000};
+    Data d3 = {"0003", "Ari", "0891232323", 46000};
 
-    do {
-        printf("\nMenu:\n");
-        printf("1. Push\n");
-        printf("2. Pop\n");
-        printf("3. Display\n");
-        printf("4. Keluar\n");
-        printf("Pilihan Anda: ");
-        scanf("%d", &pilihan);
-        getchar();
+    push(&s, d1);
+    push(&s, d2);
+    push(&s, d3);
 
-        switch (pilihan) {
-            case 1:
-                printf("Masukkan NIM: ");
-                fgets(nim, 100, stdin);
-                nim[strcspn(nim, "\n")] = 0;
+    printf("Program Stack menggunakan Array\n");
+    printf("Data awal:\n");
+    displayStack(&s);
+    //menambahkan data
+    Data d4 = {"0004", "Budi", "0879797979", 45000};
+    Data d5 = {"0005", "Riswan", "0879787879", 50000};
+    push(&s, d4);
+    push(&s, d5);
+    panjangGaris(Garis);
+    printf("Perintah 1:\n");
+    panjangGaris(Garis);
+    displayStack(&s);
+    //menghapus stack
+    pop(&s);
+    pop(&s);
+    Data poppedd1 = pop(&s);
+    pop(&s);
+    Data poppedd4 = pop(&s);
 
-                printf("Masukkan Nama: ");
-                fgets(nama, 100, stdin);
-                nama[strcspn(nama, "\n")] = 0;
+    panjangGaris(Garis);
+    printf("Data dikeluarkan:\n");
+    printf("%s dan %s\n", poppedd4.nama, poppedd1.nama);
+    panjangGaris(Garis);
+    printf("Perintah 3:\n");
+    panjangGaris(Garis);
+    if(displayStack != 0){
+        printf("Stack Kosong\n");
+    }
+    panjangGaris(Garis);
+    //menambahkan data ke dalam queue
+    Queue q;
+    initQueue(&q);
 
-                printf("Masukkan Nama Matakuliah: ");
-                fgets(matakuliah, 100, stdin);
-                matakuliah[strcspn(matakuliah, "\n")] = 0;
+    enqueue(&q, d1);
+    enqueue(&q, d2);
+    enqueue(&q, d3);
 
-                printf("Masukkan Nilai: ");
-                scanf("%f", &nilai);
+    printf("Program Queue menggunakan Linked List\n");
+    printf("Data awal:\n");
+    displayQueue(&q);
 
-                push(&s, nim, nama, matakuliah, nilai);
-                break;
-            case 2:
-                pop(&s);
-                break;
-            case 3:
-                display(s);
-                break;
-            case 4:
-                printf("Terima kasih telah menggunakan program ini.\n");
-                break;
-            default:
-                printf("Pilihan tidak valid.\n");
-        }
-    } while (pilihan != 5);
+    enqueue(&q, d4);
+    enqueue(&q, d5);
+    panjangGaris(Garis);
+
+    printf("Perintah 1:\n");
+    displayQueue(&q);
+
+    Data dequeued1 = dequeue(&q);
+    dequeue(&q);
+    Data dequeued2 = dequeue(&q);
+
+    panjangGaris(Garis);
+    printf("Data yang dikeluarkan\n");
+    printf("%s dan %s\n", dequeued1.nama, dequeued2.nama);
+    panjangGaris(Garis);
+    printf("Perintah 3:\n");
+    displayQueue(&q);
+    panjangGaris(Garis);
     return 0;
 }
